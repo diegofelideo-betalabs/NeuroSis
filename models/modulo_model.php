@@ -8,19 +8,39 @@ class Modulo_Model extends \Libs\Model {
 		parent::__construct();
 	}
 
-	public function create($table, $data){
-		$data += [
-			'ativo' => 1,
+	public function permissoes_basicas($modulo, $id_modulo){
+		$permissoes_basicas = [
+			'criar' => [
+				'modulo' => $id_modulo,
+				'permissao' => $modulo . '_criar',
+				'hash' => \Util\Hash::get_unic_hash()
+			],
+			'visualizar' => [
+				'modulo' => $id_modulo,
+				'permissao' => $modulo . '_visualizar',
+				'hash' => \Util\Hash::get_unic_hash()
+			],
+			'editar' => [
+				'modulo' => $id_modulo,
+				'permissao' => $modulo . '_editar',
+				'hash' => \Util\Hash::get_unic_hash()
+			],
+			'deletar' => [
+				'modulo' => $id_modulo,
+				'permissao' => $modulo . '_deletar',
+				'hash' => \Util\Hash::get_unic_hash()
+			]
 		];
 
-		return $this->get_insert($table, $data);
-	}
+		$erros = 0;
 
-	public function update($table, $id, $data){
-		$data += [
-			'ativo' => 1,
-		];
+		foreach ($permissoes_basicas as $indice => $permissao) {
+			$retorno[$indice] = $this->get_insert('permissao', $permissao);
+			$erros = !empty($retorno[$indice]['id']) ? $erros++ : $erros;
 
-		return $this->db->update($table, $data, "`id` = {$id}");
+			$retorno[$indice]['erros'] = $erros;
+		}
+
+		return $retorno;
 	}
 }
