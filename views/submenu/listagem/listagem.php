@@ -16,32 +16,22 @@
                                 <thead>
                                     <tr role="row">
                                         <th aria-sort="ascending" style="width: 30px;" colspan="1" rowspan="1" tabindex="0" class="sorting_asc">ID</th>
-                                        <th style="width: 200px;" colspan="1" rowspan="1" tabindex="0" class="sorting">Modulo</th>
                                         <th style="width: 200px;" colspan="1" rowspan="1" tabindex="0" class="sorting">Submenu</th>
-                                        <th style="width: 200px;" colspan="1" rowspan="1" tabindex="0" class="sorting">Link</th>
-                                        <th style="width: 30px;" colspan="1" rowspan="1" tabindex="0" class="sorting">Hierarquia</th>
-                                        <th style="width: 30px;" colspan="1" rowspan="1" tabindex="0" class="sorting">Ordem</th>
-
+                                        <th style="width: 200px;" colspan="1" rowspan="1" tabindex="0" class="sorting">Nome Exibiçao</th>
                                         <th style="width: 30px;" colspan="1" rowspan="1" tabindex="0" class="sorting">Icone</th>
                                         <th style="width: 30px;" colspan="1" rowspan="1" tabindex="0" class="sorting">Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach($this->modulo_list as $indice => $modulo) : ?>
+                                    <?php foreach($this->submenu_list as $indice => $submenu) : ?>
                                         <tr role="row" class="gradeA odd">
-                                            <td class="sorting_1"><?php echo $modulo['id']; ?></td>
-                                            <td><?php echo $modulo['nome']; ?></td>
-                                            <td><i class="fa <?php echo $modulo['submenu_icone']; ?> fa-fw"></i> <?php echo $modulo['submenu_nome_exibicao']; ?></td>
-                                            <td>/<?php echo $modulo['modulo']; ?></td>
-                                            <td><?php echo $modulo['hierarquia']; ?></td>
-
-                                            <td><?php echo $modulo['ordem']; ?></td>
-
-                                            <td><i class="fa <?php echo $modulo['icone']; ?> fa-fw"></i> <?php echo $modulo['icone']; ?></td>
-
+                                            <td class="sorting_1"><?php echo $submenu['id']; ?></td>
+                                            <td><?php echo $submenu['nome']; ?></td>
+                                            <td><?php echo $submenu['nome_exibicao']; ?></td>
+                                            <td><i class="fa <?php echo $submenu['icone']; ?> fa-fw"></i> <?php echo $submenu['icone']; ?></td>
                                             <td>
-                                                <?php echo '<a href="' . URL . $this->modulo['modulo'] . '/editar/' . $modulo['id'] . '" title="Editar"><i class="fa fa-pencil fa-fw"></i></a>'; ?>
-                                                <?php echo '<a href="' . URL . $this->modulo['modulo'] . '/delete/' . $modulo['id'] . '"><i class="fa fa-trash-o fa-fw"></i></a></td>'; ?>
+                                                <?php echo '<a href="' . URL . $this->modulo['modulo'] . '/editar/' . $submenu['id'] . '" title="Editar"><i class="fa fa-pencil fa-fw"></i></a>'; ?>
+                                                <?php echo '<a href="' . URL . $this->modulo['modulo'] . '/delete/' . $submenu['id'] . '"><i class="fa fa-trash-o fa-fw"></i></a></td>'; ?>
                                             </td>
                                         </tr>
                                     <?php endforeach ?>

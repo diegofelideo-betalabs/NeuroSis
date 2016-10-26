@@ -8,6 +8,15 @@ class Modulo_Model extends \Libs\Model {
 		parent::__construct();
 	}
 
+	public function load_modulo_list(){
+		$select = 'SELECT modulo.*, submenu.id as id_submenu, submenu.nome as submenu_nome, submenu.nome_exibicao as submenu_nome_exibicao, submenu.icone as submenu_icone'
+	    	. ' FROM modulo modulo'
+    		. ' LEFT JOIN submenu submenu ON submenu.id = modulo.id_submenu AND submenu.ativo = 1'
+	    	. ' WHERE modulo.ativo = 1';
+
+	    return $this->db->select($select);
+	}
+
 	public function permissoes_basicas($modulo, $id_modulo){
 		$permissoes_basicas = [
 			'criar' => [
@@ -43,4 +52,5 @@ class Modulo_Model extends \Libs\Model {
 
 		return $retorno;
 	}
+
 }
