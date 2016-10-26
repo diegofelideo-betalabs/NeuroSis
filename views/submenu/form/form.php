@@ -1,5 +1,3 @@
-<?php debug2($this->hierarquia_list) ?>
-
 <div class="row-fluid">
     <div class="span12">
         <form method="post"
@@ -12,26 +10,19 @@
 
             <div class="row-fluid">
                 <div class="form-group span4">
-                    <label>Email</label>
-                    <input class="form-control validar_email" name="<?php echo $this->modulo['modulo']; ?>[email]" value="<?php if(isset($this->cadastro)){echo $this->cadastro['email'];} ?>" required>
+                    <label>Modulo</label>
+                    <input class="form-control" name="<?php echo $this->modulo['modulo']; ?>[nome]" value="<?php if(isset($this->cadastro)){echo $this->cadastro['nome'];} ?>" required>
                 </div>
                 <div class="form-group span4">
-                    <label>Senha</label>
-                    <input class="form-control" type="password" name="<?php echo $this->modulo['modulo']; ?>[senha]" <?php if(!isset($this->cadastro)){echo 'required';} ?> >
+                    <label>Nome de Exibição</label>
+                    <input class="form-control" name="<?php echo $this->modulo['modulo']; ?>[nome_exibicao]" value="<?php if(isset($this->cadastro)){echo $this->cadastro['nome_exibicao'];} ?>" required>
                 </div>
                 <div class="form-group span4">
-                     <label>Hierarquia</label>
-                     <br>
-                     <select class="form-group span12"name="<?php echo $this->modulo['modulo']; ?>[hierarquia]" >
-                        <option></option>
-                        <?php foreach ($this->hierarquia_list as $indice => $hierarquia) : ?>
-                            <option value="<?php echo $hierarquia['id']?>" <?php if(isset($this->cadastro) && $this->cadastro['submenu'] == $submenu['id']){echo ' selected ';} ?> >
-                                <?php echo $hierarquia['nome']; ?>
-                            </option>
-                        <?php endforeach ?>
-                     </select>
+                    <label>Icone</label>
+                    <input class="form-control" name="<?php echo $this->modulo['modulo']; ?>[icone]" value="<?php if(isset($this->cadastro)){echo $this->cadastro['icone'];} ?>" required>
                 </div>
             </div>
+           
             <div class="row-fluid">
                 <div class="form-group span12">
                     <button type="submit" class="btn btn-primary" style="float: right;">

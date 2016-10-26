@@ -88,6 +88,17 @@
         <div id="content">
             <?php require 'views/render/render/sidebar.php'; ?>
             <!-- Page Content -->
-            <div id="page-wrapper" >
+
+            <div id="page-wrapper">
+
                 <div class="container-fluid">
                     <div class="row-fluid">
+                        <div class="row">
+                            <?php if (isset($this->modulo)) : ?>
+                                <div class="span12">
+                                    <h1 class="page-header">
+                                        <i class="fa <?php echo isset($_SESSION['modulos'][$this->modulo['modulo']]['icone']) ? $_SESSION['modulos'][$this->modulo['modulo']]['icone'] : ' ' ; ?>"></i>
+                                        <?php echo $this->modulo['name']; ?>
+                                    </h1>
+                                </div>
+                            <?php endif ?>

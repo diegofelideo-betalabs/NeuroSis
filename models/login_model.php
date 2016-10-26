@@ -3,16 +3,29 @@ namespace Models;
 
 use Libs;
 
-/**
-*
-*/
 class Login_Model extends \Libs\Model {
 
 	function __construct() {
 		parent::__construct();
 	}
 
-	function run() {
+	public function run() {
+
+		\Libs\Session::init();
+
+		$this->sign_in();
+
+		if($_SESSION['logado'] == true){
+			$this->load_permissions();
+			$this->load_modulos_and_menus();
+
+			header('location: ../painel_controle');
+		} else {
+			header('location: ../login');
+		}
+	}
+
+	private function sign_in(){
 		$sth = $this->db->prepare("SELECT * FROM usuario WHERE
 			email = :email AND senha = :senha");
 
@@ -23,40 +36,76 @@ class Login_Model extends \Libs\Model {
 		));
 
 		$data = $sth->fetch();
-
-
 		$count = $sth->rowCount();
-		$modulos = $this->db->select('SELECT * FROM modulo WHERE ATIVO = 1 ORDER BY ordem');
 
-
-		foreach ($modulos as $indice => $modulo) {
-			$menus[!empty($modulo['submenu']) ? $modulo['submenu'] : $modulo['nome']][] = $modulo;
-		}
-
-		foreach ($modulos as $indice => $modulo) {
-			$modulos[$modulo['modulo']] = $modulo;
-			unset($modulos[$indice]);
-		}
-
-		if($count > 0) {
-
+		if(isset($data) && !empty($data) && $count > 0 && $data !== false) {
 			$user = [
-				'id' => $data['id'],
-				'nome' => $data['email'],
-				'hierarquia' => $data['hierarquia'],
-
+				'id'          => $data['id'],
+				'nome'        => $data['email'],
+				'hierarquia'  => $data['hierarquia'],
+				'super_admin' => $data['super_admin']
 			];
 
-			// login
-			\Libs\Session::init();
 			\Libs\Session::set('logado', true);
 			\Libs\Session::set('usuario', $user);
-			\Libs\Session::set('modulos', $modulos);
-			\Libs\Session::set('menus', $menus);
-
-			header('location: ../painel_controle');
-		} else {
-			header('location: ../login');
 		}
+	}
+
+	private function load_modulos_and_menus(){
+		$modulos = $this->db->select('SELECT * FROM modulo WHERE ATIVO = 1 ORDER BY ordem');
+		$submenus = $this->db->select('SELECT * FROM submenu WHERE ATIVO = 1');
+
+		foreach ($modulos as $indice_01 => $modulo) {
+
+			$retorno_modulos[$modulo['modulo']] = $modulo;
+
+			if(empty($modulo['id_submenu'])){
+				$menus[$modulo['nome']][0] = $modulo;
+			} else {
+				foreach ($submenus as $indice_02 => $submenu) {
+
+					$menus[$submenu['nome']]['icone'] = $submenu['icone'];
+					$menus[$submenu['nome']]['nome_exibicao'] = $submenu['nome_exibicao'];
+
+					if($modulo['id_submenu'] == $submenu['id']){
+						$menus[$submenu['nome']]['modulos'][$modulo['modulo']] = $modulo;
+					}
+				}
+
+			}
+		}
+
+		\Libs\Session::set('modulos', $retorno_modulos);
+		\Libs\Session::set('menus', $menus);
+	}
+
+	private function load_permissions(){
+		try {
+			$select = 'SELECT hierarquia.id as id_hierarquia, hierarquia.nome,'
+				. ' relacao.id as id_relacao,'
+				. ' permissao.id as id_permissao, permissao.permissao, permissao.id_modulo,'
+				. ' modulo.modulo'
+				. ' FROM hierarquia hierarquia'
+				. ' LEFT JOIN hierarquia_relaciona_permissao relacao'
+				. ' ON relacao.id_hierarquia = hierarquia.id AND relacao.ativo = 1'
+				. ' LEFT JOIN permissao permissao'
+				. ' ON permissao.id = relacao.id_permissao'
+				. ' LEFT JOIN modulo modulo'
+				. ' ON modulo.id = permissao.id_modulo'
+				. ' WHERE hierarquia.id = ' . $_SESSION['usuario']['hierarquia'];
+
+			$permissoes = $this->db->select($select);
+
+
+			foreach($permissoes as $indice => $permissao){
+				$retorno_permissoes[$permissao['modulo']][$permissao['permissao']] = $permissao;
+			}
+
+		}catch(Exception $e){
+            if (ERROS) throw new Exception('<pre>' . $e->getMessage() . '</pre>');
+
+		}
+
+		\Libs\Session::set('permissoes', $retorno_permissoes);
 	}
 }
