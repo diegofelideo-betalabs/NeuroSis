@@ -27,8 +27,6 @@ abstract class Model {
 			'ativo' => 1,
 		];
 
-
-
 		return $this->db->update($table, $data, "`id` = {$id}");
 	}
 
