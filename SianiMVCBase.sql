@@ -670,7 +670,12 @@ INSERT INTO `permissao`
     (59, 12,  'agenda_cancelar_agendamento',  '25694643fa0a33f400a622f6463e2507'),
     (60, 7,  'paciente_remover_por_excesso_de_faltas',  'e32ca4d87c0367506780901b083acc0'),
     (61, 9,  'aluno_remover_por_excesso_de_faltas',  '6eda82ee12a330a622f6463e2507');
+    (62, 11,  'ficha_clinica_imprimir',  '6edac953b3e12a330a622f6463e2507');
 
+INSERT INTO `permissao`
+  VALUES
+    (60, 7,  'paciente_efetuar_chamada',  'e32ca4d87c0367506780901b083acc0'),
+    (61, 9,  'aluno_efetuar_chamada',  '6eda82ee12a330a622f6463e2507');
 
 
 
@@ -809,3 +814,7 @@ ALTER TABLE `aluno`
   ADD COLUMN `tipo` tinyint(1) not null DEFAULT 1 AFTER turma;
 
   ALTER TABLE NeuroSis.aluno MODIFY COLUMN tipo tinyint(1) DEFAULT 1 NOT NULL;
+
+ALTER TABLE agendamento
+  ADD COLUMN justificativa_aluno      VARCHAR(512) NULL AFTER presenca_aluno,
+  ADD COLUMN justificativa_paciente     VARCHAR(512) NULL AFTER justificativa_aluno;

@@ -59,7 +59,7 @@ class Paciente extends \Libs\Controller {
 				"<td>{$idade}</td>",
 				"<td>{$sexo}</td>",
 				"<td>{$linha['patologia']}</td>",
-	        	"<td>" . $this->view->default_buttons_listagem($linha['id']) . $botao_candidato . $botao_ex_paciente . "</td>"
+	        	"<td>" . $this->view->default_buttons_listagem($linha['id'], true, true, false) . $botao_candidato . $botao_ex_paciente . "</td>"
 			];
 		}
 
@@ -70,12 +70,25 @@ class Paciente extends \Libs\Controller {
 		\Util\Permission::check($this->modulo['modulo'], $this->modulo['modulo'] . "_" . "editar");
 
 
+		if(empty($this->model->db->select("SELECT id FROM {$this->modulo['modulo']} WHERE id = {$id[0]} AND ativo = 1"))){
+			$this->view->alert_js("{$this->modulo['send']} não existe...", 'erro');
+			header('location: ' . URL . $this->modulo['modulo']);
+			exit;
+		}
+
 		$this->view->cadastro = $this->model->load_paciente($id[0]);
 		$this->view->render($this->modulo['modulo'] . '/editar/editar');
 	}
 
 	public function visualizar($id){
 		\Util\Permission::check($this->modulo['modulo'], $this->modulo['modulo'] . "_" . "visualizar");
+
+		if(empty($this->model->db->select("SELECT id FROM {$this->modulo['modulo']} WHERE id = {$id[0]} AND ativo = 1"))){
+			$this->view->alert_js("{$this->modulo['send']} não existe...", 'erro');
+			header('location: ' . URL . $this->modulo['modulo']);
+			exit;
+		}
+
 
 		$this->view->cadastro = $this->model->load_paciente($id[0]);
 		$this->view->render($this->modulo['modulo'] . '/editar/editar');
@@ -86,6 +99,12 @@ class Paciente extends \Libs\Controller {
 	public function create() {
 		\Util\Permission::check($this->modulo['modulo'], $this->modulo['modulo'] . "_" . "criar");
 
+
+		if(empty($this->model->db->select("SELECT id FROM {$this->modulo['modulo']} WHERE id = {$id[0]} AND ativo = 1"))){
+			$this->view->alert_js("{$this->modulo['send']} não existe...", 'erro');
+			header('location: ' . URL . $this->modulo['modulo']);
+			exit;
+		}
 
 		$insert_db = carregar_variavel($this->modulo['modulo']);
 
@@ -134,6 +153,12 @@ class Paciente extends \Libs\Controller {
 	public function update($id) {
 		\Util\Permission::check($this->modulo['modulo'], $this->modulo['modulo'] . "_" . "editar");
 
+		if(empty($this->model->db->select("SELECT id FROM {$this->modulo['modulo']} WHERE id = {$id[0]} AND ativo = 1"))){
+			$this->view->alert_js("{$this->modulo['send']} não existe...", 'erro');
+			header('location: ' . URL . $this->modulo['modulo']);
+			exit;
+		}
+
 
 		$update_db = carregar_variavel($this->modulo['modulo']);
 
@@ -169,6 +194,13 @@ class Paciente extends \Libs\Controller {
 	public function delete($id) {
 		\Util\Permission::check($this->modulo['modulo'], $this->modulo['modulo'] . "_" . "deletar");
 
+
+		if(empty($this->model->db->select("SELECT id FROM {$this->modulo['modulo']} WHERE id = {$id[0]} AND ativo = 1"))){
+			$this->view->alert_js("{$this->modulo['send']} não existe...", 'erro');
+			header('location: ' . URL . $this->modulo['modulo']);
+			exit;
+		}
+
 		$retorno_paciente = $this->model->delete('paciente', $id[0]);
 
 		if($retorno_paciente['status']){
@@ -187,6 +219,14 @@ class Paciente extends \Libs\Controller {
 
 	public function transformar_paciente($id){
 
+		\Util\Permission::check($this->modulo['modulo'], $this->modulo['modulo'] . "_" . "transformar_paciente");
+
+		if(empty($this->model->db->select("SELECT id FROM {$this->modulo['modulo']} WHERE id = {$id[0]} AND ativo = 1"))){
+			$this->view->alert_js("{$this->modulo['send']} não existe...", 'erro');
+			header('location: ' . URL . $this->modulo['modulo']);
+			exit;
+		}
+
 		$update_db = [
 			"tipo" => 1
 		];
@@ -204,6 +244,14 @@ class Paciente extends \Libs\Controller {
 
 	public function transformar_ex_paciente($id){
 
+		\Util\Permission::check($this->modulo['modulo'], $this->modulo['modulo'] . "_" . "transformar_ex_paciente");
+
+		if(empty($this->model->db->select("SELECT id FROM {$this->modulo['modulo']} WHERE id = {$id[0]} AND ativo = 1"))){
+			$this->view->alert_js("{$this->modulo['send']} não existe...", 'erro');
+			header('location: ' . URL . $this->modulo['modulo']);
+			exit;
+		}
+
 		$update_db = [
 			"tipo" => 2
 		];
@@ -220,6 +268,15 @@ class Paciente extends \Libs\Controller {
 	}
 
 	public function transformar_candidato($id){
+
+		\Util\Permission::check($this->modulo['modulo'], $this->modulo['modulo'] . "_" . "transformar_candidato");
+
+
+		if(empty($this->model->db->select("SELECT id FROM {$this->modulo['modulo']} WHERE id = {$id[0]} AND ativo = 1"))){
+			$this->view->alert_js("{$this->modulo['send']} não existe...", 'erro');
+			header('location: ' . URL . $this->modulo['modulo']);
+			exit;
+		}
 
 		$update_db = [
 			"tipo" => 0

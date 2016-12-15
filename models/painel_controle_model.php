@@ -11,6 +11,17 @@ class painel_controle_model extends \Libs\Model{
 		parent::__construct();
 	}
 
+	public function carregar_bateria(){
+
+		$hoje = \DateTime::createFromFormat('Y-m-d', \date('Y-m-d'))->format('Y-m-d');
+
+		$select = "SELECT *"
+			. " FROM bateria"
+			. " WHERE bateria.data_inicio <= '{$hoje}' AND bateria.data_fim >= '{$hoje}' AND bateria.ativo = 1";
+
+	    return $this->db->select($select);
+	}
+
 	public function carregar_chamada(){
 
 		$hoje = \DateTime::createFromFormat('Y-m-d', \date('Y-m-d'))->format('Y-m-d');
@@ -27,12 +38,35 @@ class painel_controle_model extends \Libs\Model{
 			. " ON id_bateria_relaciona_aluno_paciente = relacao.id AND agendamento.ativo = 1"
 			. " AND agendamento.data <= '{$hoje}' AND (agendamento.presenca_aluno IS NULL OR agendamento.presenca_paciente IS NULL)"
 			. " LEFT JOIN aluno aluno"
-			. " ON aluno.id = relacao.id_aluno AND aluno.tipo = 0"
+			. " ON aluno.id = relacao.id_aluno AND aluno.tipo = 1"
 			. " LEFT JOIN paciente paciente"
 			. " ON paciente.id = relacao.id_paciente AND paciente.tipo = 1"
 			. " WHERE bateria.data_inicio <= '{$hoje}' AND bateria.data_fim >= '{$hoje}' AND bateria.ativo = 1";
 
 	    return $this->db->select($select);
+	}
+
+	public function carregar_faltas_paciente($id){
+		$select = "SELECT agendamento.id, agendamento.`data`, agendamento.justificativa_paciente, relacao.id AS id_agendamento, paciente.nome"
+			. " FROM agendamento agendamento"
+			. " LEFT JOIN bateria_relaciona_aluno_paciente relacao ON relacao.id = agendamento.id_bateria_relaciona_aluno_paciente"
+			. " LEFT JOIN paciente paciente ON paciente.id = relacao.id_paciente"
+			. " WHERE agendamento.presenca_paciente = 1 AND agendamento.justificativa_paciente IS NULL AND agendamento.ativo = 1 AND paciente.id = {$id}";
+
+	    	return $this->db->select($select);
+
+	}
+	public function carregar_faltas_aluno($id){
+		$select = "SELECT agendamento.id, agendamento.`data`, agendamento.justificativa_aluno, relacao.id AS id_agendamento, aluno.nome"
+			. " FROM agendamento agendamento"
+			. " LEFT JOIN bateria_relaciona_aluno_paciente relacao ON relacao.id = agendamento.id_bateria_relaciona_aluno_paciente"
+			. " LEFT JOIN aluno aluno ON aluno.id = relacao.id_aluno"
+			. " WHERE agendamento.presenca_aluno = 1 AND agendamento.justificativa_aluno IS NULL AND agendamento.ativo = 1 AND aluno.id = {$id}";
+
+
+
+	    	return $this->db->select($select);
+
 	}
 
 	public function carregar_faltas(){
@@ -79,11 +113,11 @@ class painel_controle_model extends \Libs\Model{
 
 	    	foreach ($retorno_pacientes as $indice => $paciente) {
 	    		if($paciente >= 2){
-	    			$retorno['pacientes'][] = [
-	    				'id' => $indice,
-	    				'faltas'      => $paciente['faltas'],
-	    				'nome'        => $this->db->select("SELECT nome FROM paciente WHERE id = {$indice}")[0]['nome'],
-	    				'id_relacao'  => $paciente['id_relacao']
+	    			$retorno['pacientes'][$indice] = [
+	    				'id'         => $indice,
+	    				'faltas'     => $paciente['faltas'],
+	    				'nome'       => $this->db->select("SELECT nome FROM paciente WHERE id = {$indice}")[0]['nome'],
+	    				'id_relacao' => $paciente['id_relacao']
 	    			];
 	    		}
 	    	}
@@ -106,7 +140,7 @@ class painel_controle_model extends \Libs\Model{
 
 	    	foreach ($retorno_alunos as $indice => $aluno) {
 	    		if($aluno >= 2){
-	    			$retorno['alunos'][] = [
+	    			$retorno['alunos'][$indice] = [
 	    				'id' => $indice,
 	    				'faltas'      => $aluno['faltas'],
 	    				'nome'        => $this->db->select("SELECT nome FROM aluno WHERE id = {$indice}")[0]['nome'],
@@ -116,6 +150,60 @@ class painel_controle_model extends \Libs\Model{
 	    	}
 	    }
 
+	    foreach ($retorno as $indice_01 => $retorninho) {
+	    	foreach ($retorninho as $indice_02 => $outro) {
+	    		if($indice_01 == 'pacientes'){
+	    			$retorno[$indice_01][$indice_02]['justificativas'] = $this->carregar_justificativas_paciente($outro['id']);
+	    		}elseif($indice_01 == 'alunos'){
+	    			$retorno[$indice_01][$indice_02]['justificativas'] = $this->carregar_justificativas_aluno($outro['id']);
+	    		}
+	    	}
+	    }
+
 	    return $retorno;
+	}
+
+	private function carregar_justificativas_paciente($id){
+		$select = " SELECT"
+		. " 	agendamento.id AS id_agendamento,"
+		. " 	agendamento.`data`,"
+		. " 	agendamento.justificativa_paciente,"
+		. " 	relacao.id AS id_agendamento,"
+		. " 	paciente.nome"
+		. " FROM"
+		. " 	agendamento agendamento"
+		. " LEFT JOIN bateria_relaciona_aluno_paciente relacao ON"
+		. " 	relacao.id = agendamento.id_bateria_relaciona_aluno_paciente"
+		. " LEFT JOIN paciente paciente ON"
+		. " 	paciente.id = relacao.id_paciente"
+		. " WHERE"
+		. " 	agendamento.presenca_paciente = 1"
+		. " 	AND agendamento.justificativa_paciente IS NOT NULL"
+		. " 	AND agendamento.ativo = 1"
+		. " 	AND paciente.id = {$id}";
+
+		return $this->db->select($select);
+	}
+
+	private function carregar_justificativas_aluno($id){
+		$select = " SELECT"
+		. " 	agendamento.id AS id_agendamento,"
+		. " 	agendamento.`data`,"
+		. " 	agendamento.justificativa_aluno,"
+		. " 	relacao.id AS id_agendamento,"
+		. " 	aluno.nome"
+		. " FROM"
+		. " 	agendamento agendamento"
+		. " LEFT JOIN bateria_relaciona_aluno_paciente relacao ON"
+		. " 	relacao.id = agendamento.id_bateria_relaciona_aluno_paciente"
+		. " LEFT JOIN aluno aluno ON"
+		. " 	aluno.id = relacao.id_aluno"
+		. " WHERE"
+		. " 	agendamento.presenca_aluno = 1"
+		. " 	AND agendamento.justificativa_aluno IS NOT NULL"
+		. " 	AND agendamento.ativo = 1"
+		. " 	AND aluno.id = {$id}";
+
+		return $this->db->select($select);
 	}
 }

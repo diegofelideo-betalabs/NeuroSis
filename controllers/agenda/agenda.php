@@ -168,11 +168,6 @@ class Agenda extends \Libs\Controller {
 	}
 
 
-
-
-
-
-
 	public function verificar_horarios_disponiveis_ajax(){
 		$data_escolhida = \DateTime::createFromFormat('d/m/Y', carregar_variavel('data_consulta'));
 		$data = $data_escolhida->format('Y-m-d');
@@ -233,20 +228,22 @@ class Agenda extends \Libs\Controller {
 	}
 
 	public function fazer_chamada($dados){
-		if($dados[3] != 'undefined'){
+		if($dados[3] != 'undefined' && \Util\Permission::check_user_permission('paciente', 'paciente_efetuar_chamada')){
 			$update_db = [
 				'presenca_paciente' => $dados[1] == 'falta' ? 1 : 0
 			];
 
 			$where = "id = {$dados[0]}";
-		}
-
-		if($dados[2] != 'undefined'){
+		}elseif($dados[2] != 'undefined' && \Util\Permission::check_user_permission('aluno', 'aluno_efetuar_chamada')){
 			$update_db = [
 				'presenca_aluno' => $dados[1] == 'falta' ? 1 : 0
 			];
 
 			$where = "id = {$dados[0]}";
+		}else{
+			$this->view->alert_js('Você não possui permissão para realizar essa ação!!!', 'erro');
+			header('location: ' . URL . 'painel_controle');
+			exit;
 		}
 
 		$retorno = $this->model->db->update('agendamento', $update_db, $where);

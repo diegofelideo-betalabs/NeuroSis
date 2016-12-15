@@ -52,23 +52,26 @@ class Ficha_Clinica extends \Libs\Controller {
 				continue;
 			}
 
-			// debug2($linha);
-			// exit;
-
 			$url = URL;
 
 			$botao_imprimir = \Util\Permission::check_user_permission($this->modulo['modulo'], $this->modulo['modulo'] . "_" . "imprimir") ?
 				"<a href='{$url}{$this->modulo['modulo']}/imprimir/" . $linha['id_ficha_clinica'] . "' target='_blank' title='Imprimir'><i class='fa fa-print fa-fw'></i></a>" :
 				'';
 
+
+				$nascimento = date_format(\DateTime::createFromFormat('Y-m-d', $linha['nascimento_paciente']), 'd/m/Y');
+				$inicio = date_format(\DateTime::createFromFormat('Y-m-d', $linha['bateria_data_inicio']), 'd/m/Y');
+				$fim = date_format(\DateTime::createFromFormat('Y-m-d', $linha['bateria_data_fim']), 'd/m/Y');
+
+
 			$retorno_linhas[] = [
 				"<td class='sorting_1'>{$linha['id_ficha_clinica']}</td>",
 				"<td>{$linha['nome_paciente']}</td>",
-				"<td>{$linha['nascimento_paciente']}</td>",
-				"<td>{$linha['bateria_data_inicio']} a {$linha['bateria_data_fim']}</td>",
+				"<td>{$nascimento}</td>",
+				"<td>{$inicio} a {$fim}</td>",
 				"<td>{$linha['patologia_paciente']}</td>",
 				"<td>{$linha['aluno_nome']}</td>",
-	        	"<td>" . $this->view->default_buttons_listagem($linha['id_ficha_clinica']) . $botao_imprimir . "</td>"
+	        	"<td>" . $this->view->default_buttons_listagem($linha['id_ficha_clinica'], true, true, false) . $botao_imprimir . "</td>"
 			];
 		}
 
@@ -80,12 +83,24 @@ class Ficha_Clinica extends \Libs\Controller {
 	public function editar($id) {
 		\Util\Permission::check($this->modulo['modulo'], $this->modulo['modulo'] . "_" . "editar");
 
+		if(empty($this->model->db->select("SELECT id FROM {$this->modulo['modulo']} WHERE id = {$id[0]} AND ativo = 1"))){
+			$this->view->alert_js("{$this->modulo['send']} não existe...", 'erro');
+			header('location: ' . URL . $this->modulo['modulo']);
+			exit;
+		}
+
 		$this->view->cadastro = $this->model->load_ficha_clinica($id[0]);
 		$this->view->render($this->modulo['modulo'] . '/editar/editar');
 	}
 
 	public function visualizar($id){
 		\Util\Permission::check($this->modulo['modulo'], $this->modulo['modulo'] . "_" . "visualizar");
+
+		if(empty($this->model->db->select("SELECT id FROM {$this->modulo['modulo']} WHERE id = {$id[0]} AND ativo = 1"))){
+			$this->view->alert_js("{$this->modulo['send']} não existe...", 'erro');
+			header('location: ' . URL . $this->modulo['modulo']);
+			exit;
+		}
 
 		$this->view->cadastro = $this->model->load_ficha_clinica($id[0]);
 		$this->view->render($this->modulo['modulo'] . '/editar/editar');
@@ -119,6 +134,12 @@ class Ficha_Clinica extends \Libs\Controller {
 	public function update($id) {
 		\Util\Permission::check($this->modulo['modulo'], $this->modulo['modulo'] . "_" . "editar");
 
+		if(empty($this->model->db->select("SELECT id FROM {$this->modulo['modulo']} WHERE id = {$id[0]} AND ativo = 1"))){
+			$this->view->alert_js("{$this->modulo['send']} não existe...", 'erro');
+			header('location: ' . URL . $this->modulo['modulo']);
+			exit;
+		}
+
 		$update_db = carregar_variavel($this->modulo['modulo']);
 
 		$retorno = $this->model->update($this->modulo['modulo'], $id[0], $update_db);
@@ -134,6 +155,12 @@ class Ficha_Clinica extends \Libs\Controller {
 
 	public function delete($id) {
 		\Util\Permission::check($this->modulo['modulo'], $this->modulo['modulo'] . "_" . "deletar");
+
+		if(empty($this->model->db->select("SELECT id FROM {$this->modulo['modulo']} WHERE id = {$id[0]} AND ativo = 1"))){
+			$this->view->alert_js("{$this->modulo['send']} não existe...", 'erro');
+			header('location: ' . URL . $this->modulo['modulo']);
+			exit;
+		}
 
 		$retorno = $this->model->delete($this->modulo['modulo'], $id[0]);
 
