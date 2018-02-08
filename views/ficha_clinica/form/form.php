@@ -839,7 +839,7 @@
                         </div>
                         <div class="panel-body">
                            <div class="form-group">
-                                <textarea class="form-control" rows="3" name="<?php echo $this->modulo['modulo']; ?>[evolucao_periodo]"><?php echo $this->cadastro['evolucao_periodo']; ?></textarea>
+                                <textarea class="form-control" rows="5" name="<?php echo $this->modulo['modulo']; ?>[evolucao_periodo]"><?php echo $this->cadastro['evolucao_periodo']; ?></textarea>
                             </div>
                         </div>
                     </div>

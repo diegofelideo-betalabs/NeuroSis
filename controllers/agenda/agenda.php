@@ -11,7 +11,7 @@ class Agenda extends \Libs\Controller {
 		'send'		=> 'Agenda'
 	];
 
-	function __construct() {
+	// function __construct() {
 		parent::__construct();
 		\Util\Auth::handLeLoggin();
 
