@@ -5,10 +5,12 @@ namespace Libs;
 *
 */
 class Database extends \PDO {
+	public function __construct($DB_TYPE, $DB_HOST, $DB_NAME, $DB_USER, $DB_PASS){
 
-	public function __construct($DB_TYPE, $DB_HOST, $DB_NAME, $DB_USER, $DB_PASS) {
+
 		try {
 			parent::__construct($DB_TYPE.':host='.$DB_HOST.';dbname='.$DB_NAME, $DB_USER, $DB_PASS);
+			parent::exec("SET CHARACTER SET utf8");
 		} catch(Exception $e) {
 			die('Falha de conexão com o Banco de Dados.');
 		}
@@ -37,7 +39,6 @@ class Database extends \PDO {
 	 * @param string $table Nome da tabela a ser inserida
 	 * @param string $data Um array associado
 	 */
-
 	public function insert($table, $data) {
 		ksort($data);
 
@@ -50,8 +51,24 @@ class Database extends \PDO {
 			$sth->bindValue(":$key", $value);
 		}
 
+		try{
+			$retorno = [
+				$sth->execute(),
+				$this->lastInsertId(),
+				$sth->errorCode(),
+				$sth->errorInfo()
+			];
+		}catch(Exception $e){
+            if (ERROS) throw new Exception($e->getMessage());
+		}
 
-		return $sth->execute();
+		return [
+			"status" 		=> $retorno[0] == true ? true : false,
+			"id"			=> $retorno[1] != 0 ? $retorno[1] : false,
+			"error_code" 	=> $retorno[2] != '00000' ? $retorno[2] : false,
+			"erros_info"	=> !is_null($retorno[3][2]) ? $retorno[3][2] : false
+		];
+
 	}
 
 	/**
@@ -61,15 +78,13 @@ class Database extends \PDO {
 	 * @param string $where Onde será atualizado
 	 */
 	public function update($table, $data, $where) {
+
 		ksort($data);
 
 		$fieldDetails = NULL;
 		foreach($data as $key => $value) {
 			$fieldDetails .= "`$key` = :$key,";
-
-
 		}
-
 
 		$fieldDetails = rtrim($fieldDetails, ',');
 
@@ -79,7 +94,23 @@ class Database extends \PDO {
 			$sth->bindValue(":$key", $value);
 		}
 
-		return $sth->execute();
+		try{
+			$retorno = [
+				$sth->execute(),
+				$this->lastInsertId(),
+				$sth->errorCode(),
+				$sth->errorInfo()
+			];
+		}catch(Exception $e){
+            if (ERROS) throw new Exception($e->getMessage());
+		}
+
+		return [
+			"status" 		=> $retorno[0] == true ? true : false,
+			"id"			=> $retorno[1] != 0 ? $retorno[1] : false,
+			"error_code" 	=> $retorno[2] != '00000' ? $retorno[2] : false,
+			"erros_info"	=> !is_null($retorno[3][2]) ? $retorno[3][2] : false
+		];
 	}
 
 	/**
@@ -89,7 +120,7 @@ class Database extends \PDO {
 	 * @param integer $limit
 	 * @return integer Affected Rows
 	 */
-	public function delete($table, $where, $limit = 1) {
+	public function delete($table, $where, $limit = 1){
 		return $this->exec("DELETE FROM $table WHERE $where LIMIT $limit");
 	}
 }

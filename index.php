@@ -1,28 +1,43 @@
 <?php
+	ini_set('display_errors', 0);
+	error_reporting(0);
 
-require 'config.php';
-require 'util/Auth.php';
+	require 'util/functions.php';
+	require 'config.php';
+	require 'util/auth.php';
+	include __DIR__ . '/vendor/autoload.php';
 
-require 'util/funcoes.php';
+	session_start();
+	// debug2($_SESSION);
 
 // spl_autoload_register
-
-
-	$className = ltrim($className, '\\');
-	$fileName  = '';
+function autoload($class_name) {
+	$class_name = ltrim($class_name, '\\');
+	$file_name  = '';
 	$namespace = '';
 
-	if ($lastNsPos = strrpos($className, '\\')) {
-		$namespace = substr($className, 0, $lastNsPos);
-		$className = substr($className, $lastNsPos + 1);
-		$fileName  = str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
+	// debug2($class_name);
+	// debug2($file_name);
+	// debug2($namespace);
+	// debug2($lastNsPos);
+
+	if ($lastNsPos = strrpos($class_name, '\\')) {
+		$namespace = substr($class_name, 0, $lastNsPos);
+		$class_name = substr($class_name, $lastNsPos + 1);
+		$file_name  = str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
 	}
 
-	$fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
+	$file_name = strtolower($file_name);
 
-	require $fileName;
+	// $file_name .= str_replace('_', DIRECTORY_SEPARATOR, $class_name) . '.php';
+	$file_name .= $class_name . '.php';
+	// debug2($file_names);
+
+	if(file_exists($file_name)){
+		require $file_name;
+	}
 }
 
 spl_autoload_register('autoload');
+$lib = new libs\bootstrap();
 
-$lib = new Libs\Bootstrap();
