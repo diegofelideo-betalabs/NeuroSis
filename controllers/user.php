@@ -4,10 +4,6 @@ namespace Controllers;
 use Libs;
 
 /**
-<<<<<<< HEAD
-=======
-
->>>>>>> 7f345e1... DEV - implementando painel administrativo bootstrap, adicionando modulos, abstraindo renderização das views e concertando conflitos de cagada fudida!
 *
 */
 class User extends \Libs\Controller
